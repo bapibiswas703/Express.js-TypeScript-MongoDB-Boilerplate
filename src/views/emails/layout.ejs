@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; background-color: #f4f4f7; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+    .header { background-color: #2d3748; padding: 24px; text-align: center; }
+    .header h1 { color: #ffffff; margin: 0; font-size: 24px; }
+    .content { padding: 32px 24px; color: #333333; line-height: 1.6; }
+    .content h2 { color: #2d3748; margin-top: 0; }
+    .footer { padding: 24px; text-align: center; font-size: 12px; color: #999999; background-color: #f4f4f7; }
+    .btn { display: inline-block; padding: 12px 24px; background-color: #3182ce; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1><%= appName %></h1>
+    </div>
+    <div class="content">
+      <%- body %>
+    </div>
+    <div class="footer">
+      <p>&copy; <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,343 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "title": "Requests Per Minute",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"express-api\"} | json | level=`info` | __error__=`` [1m]))",
+          "legendFormat": "Requests/min",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20 },
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({service=\"express-api\"} | json | level=`error` | __error__=`` [1m]))",
+          "legendFormat": "Errors/min",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 20 },
+          "color": { "mode": "fixed", "fixedColor": "red" }
+        }
+      }
+    },
+    {
+      "title": "HTTP Status Codes",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (statusCode) (count_over_time({service=\"express-api\"} | json | statusCode != `` | __error__=`` [$__range]))",
+          "legendFormat": "{{statusCode}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Top Endpoints",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (url) (count_over_time({service=\"express-api\"} | json | url != `` | url != `/health` | __error__=`` [$__range])))",
+          "legendFormat": "{{url}}",
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        { "id": "sortBy", "options": { "sort": [{ "field": "Value", "desc": true }] } }
+      ]
+    },
+    {
+      "title": "Response Time Distribution (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service=\"express-api\"} | json | responseTime != `` | __error__=`` | unwrap responseTime [5m] | avg_over_time([5m])",
+          "legendFormat": "Avg Response Time",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "fillOpacity": 10 },
+          "color": { "mode": "fixed", "fixedColor": "blue" }
+        }
+      }
+    },
+    {
+      "title": "500 Errors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 16 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "count_over_time({service=\"express-api\"} | json | statusCode = `500` | __error__=`` [$__range])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "red" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5 },
+              { "color": "red", "value": 20 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "404 Errors",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 16 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "count_over_time({service=\"express-api\"} | json | statusCode = `404` | __error__=`` [$__range])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "orange" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "orange", "value": 50 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Authentication Failures",
+      "type": "stat",
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 16 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "count_over_time({service=\"express-api\"} | json | statusCode = `401` | __error__=`` [$__range])",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "purple" },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Login Activity",
+      "type": "timeseries",
+      "gridPos": { "h": 4, "w": 12, "x": 12, "y": 16 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "count_over_time({service=\"express-api\"} | json | type=`audit` | audit_action=`LOGIN` | __error__=`` [5m])",
+          "legendFormat": "Logins/5min",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "bars", "fillOpacity": 80 },
+          "color": { "mode": "fixed", "fixedColor": "green" }
+        }
+      }
+    },
+    {
+      "title": "Audit Log",
+      "type": "logs",
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 20 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service=\"express-api\"} | json | type=`audit` | __error__=``",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": true,
+        "enableLogDetails": true,
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "title": "Top Errors",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 30 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (msg) (count_over_time({service=\"express-api\"} | json | level=`error` | __error__=`` [$__range])))",
+          "legendFormat": "{{msg}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Error Trend",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 30 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "sum by (level) (count_over_time({service=\"express-api\"} | json | level=~`error|warn` | __error__=`` [5m]))",
+          "legendFormat": "{{level}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "drawStyle": "line", "fillOpacity": 15 }
+        },
+        "overrides": [
+          { "matcher": { "id": "byName", "options": "error" }, "properties": [{ "id": "color", "value": { "fixedColor": "red", "mode": "fixed" } }] },
+          { "matcher": { "id": "byName", "options": "warn" }, "properties": [{ "id": "color", "value": { "fixedColor": "yellow", "mode": "fixed" } }] }
+        ]
+      }
+    },
+    {
+      "title": "Top IP Addresses",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 38 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (ip) (count_over_time({service=\"express-api\"} | json | ip != `` | __error__=`` [$__range])))",
+          "legendFormat": "{{ip}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Top User Agents",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 38 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (userAgent) (count_over_time({service=\"express-api\"} | json | userAgent != `` | __error__=`` [$__range])))",
+          "legendFormat": "{{userAgent}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Most Active Users",
+      "type": "table",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 38 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (userId) (count_over_time({service=\"express-api\"} | json | userId != `` | __error__=`` [$__range])))",
+          "legendFormat": "{{userId}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "title": "Database Errors",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 46 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service=\"express-api\"} | json | level=`error` | msg=~`.*[Dd]atabase.*|.*[Mm]ongo.*` | __error__=``",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    },
+    {
+      "title": "Server Errors (5xx)",
+      "type": "logs",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 46 },
+      "datasource": { "type": "loki", "uid": "loki" },
+      "targets": [
+        {
+          "expr": "{service=\"express-api\"} | json | level=`error` | statusCode >= 500 | __error__=``",
+          "refId": "A"
+        }
+      ],
+      "options": { "showTime": true, "enableLogDetails": true, "sortOrder": "Descending" }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["express", "api", "monitoring"],
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "custom",
+        "current": { "text": "express-api", "value": "express-api" },
+        "options": [{ "text": "express-api", "value": "express-api" }],
+        "query": "express-api"
+      },
+      {
+        "name": "level",
+        "type": "custom",
+        "includeAll": true,
+        "current": { "text": "All", "value": "$__all" },
+        "options": [
+          { "text": "All", "value": "$__all" },
+          { "text": "trace", "value": "trace" },
+          { "text": "debug", "value": "debug" },
+          { "text": "info", "value": "info" },
+          { "text": "warn", "value": "warn" },
+          { "text": "error", "value": "error" },
+          { "text": "fatal", "value": "fatal" }
+        ],
+        "query": "trace,debug,info,warn,error,fatal"
+      }
+    ]
+  },
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Express API Monitoring",
+  "uid": "express-api-monitoring",
+  "version": 1
+}

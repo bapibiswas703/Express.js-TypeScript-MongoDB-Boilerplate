@@ -1,0 +1,11 @@
+<%- include('layout', {
+  appName,
+  body: `
+    <h2>Verify your email, ${name}!</h2>
+    <p>Please verify your email address to complete your registration with <strong>${appName}</strong>.</p>
+    <p>Your verification token:</p>
+    <p style="text-align: center; margin: 24px 0; font-family: monospace; font-size: 14px; background: #f4f4f4; padding: 16px; border-radius: 8px; word-break: break-all;">${verifyToken}</p>
+    <p>This token expires in 24 hours.</p>
+    <p>If you did not create this account, please ignore this email.</p>
+  `
+}) %>

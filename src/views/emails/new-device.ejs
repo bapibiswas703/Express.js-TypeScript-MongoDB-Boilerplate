@@ -1,0 +1,16 @@
+<%- include('layout', {
+  appName,
+  body: `
+    <h2>New device login detected</h2>
+    <p>Hi ${name}, a new device just logged into your <strong>${appName}</strong> account:</p>
+    <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
+      <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Device</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>${deviceName}</strong></td></tr>
+      <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Browser</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${browser}</td></tr>
+      <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">Operating System</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${os}</td></tr>
+      <tr><td style="padding: 8px; border-bottom: 1px solid #eee; color: #666;">IP Address</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${ip}</td></tr>
+      <tr><td style="padding: 8px; color: #666;">Time</td><td style="padding: 8px;">${time}</td></tr>
+    </table>
+    <p>If this was you, no action is needed.</p>
+    <p>If you don't recognize this login, please change your password immediately and review your active devices.</p>
+  `
+}) %>
