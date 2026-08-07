@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [1.18.0] - 2026-08-07
+
+### Added
+- **Database migrations** — Versioned schema changes using `migrate-mongo`
+  - `migrate-mongo-config.js` — reads `MONGODB_URI` from `.env`
+  - `migrations/20260807000001-initial-indexes.js` — codifies all 20 existing indexes from Mongoose schemas
+  - `migrations/20260807000002-add-user-phone-field.js` — example migration template
+  - npm scripts: `migrate:up`, `migrate:down`, `migrate:status`, `migrate:create`
+
+## [1.17.0] - 2026-08-07
+
+### Added
+- **Kubernetes manifests** — Kustomize-based k8s deployment in `k8s/`
+  - Base: Deployment, Service, Ingress, HPA, ConfigMap, Secret, MongoDB StatefulSet
+  - Health/readiness probes on `/health` endpoint
+  - Overlays for dev (1 replica, debug), staging (2 replicas, tracing), prod (3 replicas, TLS, pod spread, HPA 3-20)
+  - `k8s/README.md` with full setup instructions
+
+## [1.16.0] - 2026-08-07
+
+### Added
+- **Load / stress tests** — k6 performance test scripts in `tests/load/`
+  - `smoke.test.js` — quick validation (1 VU, 30s)
+  - `load.test.js` — sustained production traffic (20-50 VUs, 7min)
+  - `spike.test.js` — sudden traffic surge (10-200 VUs, 3min)
+  - `soak.test.js` — extended stability test (30 VUs, 29min)
+  - Shared config and auth helpers
+  - Targets auth, products, categories with filtering and pagination
+  - `tests/load/README.md` with setup, thresholds, and usage
+
+## [1.15.0] - 2026-08-07
+
+### Added
+- **E2E tests** — 13 end-to-end tests across 3 test suites in `tests/e2e/`
+  - `auth-flow.e2e.test.ts` — full auth lifecycle, multi-device logout-all, duplicate registration, refresh token rotation chain
+  - `product-lifecycle.e2e.test.ts` — category/product CRUD, filtering, pagination, cross-module data consistency
+  - `rbac.e2e.test.ts` — permission enforcement, unauthenticated access denial, superadmin full access, role-based access control
+  - npm script: `npm run test:e2e`
+- **APM / distributed tracing** — OpenTelemetry integration with Jaeger
+  - `src/instrumentation.ts` — auto-instrumentation for Express, MongoDB, HTTP (conditional via `TRACING_ENABLED`)
+  - Trace ID correlation in Pino logs (`traceId`, `spanId` injected via mixin)
+  - Jaeger service added to Docker Compose (UI at port 16686, OTLP receiver at 4318)
+  - Env vars: `TRACING_ENABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_SERVICE_NAME`
+- **Seed script CLI** — `npm run seed` with selective seeding
+  - Flags: `--roles`, `--users`, `--categories`, `--products`, `--fresh`, `--help`
+  - Idempotent (skips existing records), dependency-aware (warns if roles missing for users)
+  - Sample data: 3 roles, 4 users, 5 categories, 10 products
+
 ## [1.14.0] - 2026-08-06
 
 ### Added

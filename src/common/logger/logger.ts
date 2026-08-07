@@ -4,6 +4,7 @@ import { join } from 'path';
 import { mkdirSync, existsSync } from 'fs';
 import os from 'os';
 import { config } from '../../config';
+import { trace, isSpanContextValid } from '@opentelemetry/api';
 
 const logDir = config.log.dir;
 if (!existsSync(logDir)) {
@@ -29,8 +30,21 @@ const REDACT_PATHS = [
   'res.headers["set-cookie"]',
 ];
 
+const traceContextMixin = () => {
+  const span = trace.getActiveSpan();
+  if (!span) return {};
+  const ctx = span.spanContext();
+  if (!isSpanContextValid(ctx)) return {};
+  return {
+    traceId: ctx.traceId,
+    spanId: ctx.spanId,
+    traceFlags: ctx.traceFlags,
+  };
+};
+
 const baseOptions: LoggerOptions = {
   level: config.log.level,
+  mixin: traceContextMixin,
   redact: {
     paths: REDACT_PATHS,
     censor: '********',

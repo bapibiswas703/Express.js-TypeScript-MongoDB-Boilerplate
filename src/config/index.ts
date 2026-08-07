@@ -69,6 +69,12 @@ export const config = {
     authToken: process.env.TWILIO_AUTH_TOKEN || '',
     phoneNumber: process.env.TWILIO_PHONE_NUMBER || '',
   },
+
+  tracing: {
+    enabled: process.env.TRACING_ENABLED === 'true',
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4318',
+    serviceName: process.env.OTEL_SERVICE_NAME || process.env.SERVICE_NAME || 'express-api',
+  },
 };
 
 // Aliases for backward compatibility

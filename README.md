@@ -21,6 +21,7 @@ Production-grade REST API boilerplate using modular monolith architecture — Ex
 | Push Notifications | Firebase Admin (FCM)                     |
 | File Storage       | AWS S3 (@aws-sdk/client-s3)              |
 | Security           | Helmet, CORS, Rate Limiting              |
+| Tracing            | OpenTelemetry + Jaeger                   |
 | Monitoring         | Grafana + Loki + Promtail                |
 | Testing            | Jest + Supertest + mongodb-memory-server |
 | Containerization   | Docker + Docker Compose                  |
@@ -108,13 +109,17 @@ The API starts on `http://localhost:8000`.
 ```
 src/
 ├── app.ts                              # Entry point + graceful shutdown
+├── instrumentation.ts                  # OpenTelemetry tracing setup
 ├── config/
 │   ├── index.ts                        # Environment-based configuration
 │   └── swagger.ts                      # OpenAPI 3.0 schema definitions
+├── scripts/                            # CLI scripts
+│   ├── seed.ts                         # Database seeding CLI
+│   └── seed-data.ts                    # Seed data definitions
 ├── services/                           # Infrastructure services
 │   ├── Database.ts                     # MongoDB connection
 │   ├── ExpressApp.ts                   # Express middleware stack
-│   └── seed.ts                         # Default role seeding
+│   └── seed.ts                         # Default role seeding on startup
 ├── common/                             # Shared across all modules
 │   ├── constants/permissions.ts        # RBAC permissions & role definitions
 │   ├── logger/                         # Pino logging system
@@ -404,9 +409,38 @@ auditLogger.log(req, {
 
 See [LOGGING.md](LOGGING.md) for full documentation including Loki queries and Grafana setup.
 
+## Distributed Tracing (OpenTelemetry)
+
+The application supports distributed tracing via [OpenTelemetry](https://opentelemetry.io/) with automatic instrumentation for Express, MongoDB, and HTTP calls.
+
+### Enable Tracing
+
+```bash
+TRACING_ENABLED=true
+OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+OTEL_SERVICE_NAME=express-api
+```
+
+### What Gets Traced
+
+- **Express routes** — HTTP method, path, status code, duration
+- **MongoDB queries** — collection, operation, duration
+- **Outgoing HTTP calls** — S3, SMTP, FCM, webhook delivery
+
+### Log Correlation
+
+When tracing is enabled, every Pino log entry automatically includes `traceId` and `spanId` fields, allowing you to jump from a log line directly to its trace in Jaeger.
+
+### Jaeger UI (Docker)
+
+```bash
+cd docker && docker compose up -d
+# Open http://localhost:16686 for the Jaeger UI
+```
+
 ## Testing
 
-140 tests across 18 test suites using Jest + Supertest + MongoMemoryServer.
+150+ tests across 21 test suites using Jest + Supertest + MongoMemoryServer.
 
 ### Commands
 
@@ -420,6 +454,9 @@ npm run test:unit
 # Integration tests only
 npm run test:integration
 
+# E2E tests only (multi-step user journeys)
+npm run test:e2e
+
 # With coverage report
 npm run test:coverage
 
@@ -431,8 +468,10 @@ npm run test:watch
 
 | Suite                 | Count | Description                                            |
 | --------------------- | ----- | ------------------------------------------------------ |
-| **Unit Tests**        | 91    | Service layer (mocked repositories), utilities, logger |
-| **Integration Tests** | 49    | Full API tests with MongoMemoryServer                  |
+| **Unit Tests**        | 91    | Service layer (mocked repositories), utilities, logger              |
+| **Integration Tests** | 49    | Full API tests with MongoMemoryServer                               |
+| **E2E Tests**         | 13    | Multi-step user journeys: auth flow, product lifecycle, RBAC        |
+| **Load Tests**        | 4     | k6 scripts: smoke, sustained load, spike, soak (`tests/load/`)     |
 
 **Unit Tests:**
 
@@ -457,6 +496,36 @@ npm run test:watch
 - `role` — CRUD + permissions endpoint
 - `category` — CRUD with duplicate detection
 - `product` — CRUD with filtering (category, price range, search)
+
+## Database Seeding
+
+Seed your database with sample data using the CLI:
+
+```bash
+# Seed all data (roles, users, categories, products)
+npm run seed
+
+# Drop existing data and re-seed
+npm run seed:fresh
+
+# Seed specific targets
+npm run seed -- --roles
+npm run seed -- --users --categories
+
+# Combine flags
+npm run seed -- --products --fresh
+```
+
+### Seed Data
+
+| Target | Records | Details |
+|---|---|---|
+| Roles | 3 | superadmin, admin, user |
+| Users | 4 | superadmin, admin, and 2 regular users (all with verified emails) |
+| Categories | 5 | Electronics, Clothing, Books, Home & Kitchen, Sports |
+| Products | 10 | Sample products across all categories |
+
+The seeder is **idempotent** — running it multiple times won't create duplicates. Use `--fresh` to drop and recreate data.
 
 ## Swagger / API Documentation
 
@@ -492,7 +561,7 @@ Jobs retry 3 times with exponential backoff.
 
 ### Full Stack (with Monitoring)
 
-One command to start the entire stack — API, MongoDB, Loki, Promtail, and Grafana:
+One command to start the entire stack — API, MongoDB, Jaeger, Loki, Promtail, and Grafana:
 
 ```bash
 cd docker
@@ -504,6 +573,7 @@ docker compose up -d
 | Express API | `8000`  | REST API                 |
 | MongoDB     | `27017` | Database                 |
 | Grafana     | `3000`  | Dashboards (admin/admin) |
+| Jaeger      | `16686` | Distributed tracing UI   |
 | Loki        | `3100`  | Log aggregation          |
 | Promtail    | —       | Log shipping agent       |
 
@@ -531,6 +601,22 @@ Auto-provisioned at `http://localhost:3000` with 16 panels:
 {service="express-api"} | json | method="POST"
 ```
 
+## Kubernetes
+
+Kustomize-based manifests in `k8s/` with environment overlays:
+
+```bash
+# Preview manifests
+kubectl kustomize k8s/overlays/dev
+
+# Deploy
+kubectl apply -k k8s/overlays/dev      # dev (1 replica, debug)
+kubectl apply -k k8s/overlays/staging   # staging (2 replicas, tracing)
+kubectl apply -k k8s/overlays/prod      # prod (3 replicas, TLS, HPA 3-20)
+```
+
+Includes: Deployment, Service, Ingress, HPA, ConfigMap, Secret, MongoDB StatefulSet. See [`k8s/README.md`](k8s/README.md) for full documentation.
+
 ## Scripts
 
 | Script             | Command                    | Description                                          |
@@ -541,8 +627,15 @@ Auto-provisioned at `http://localhost:3000` with 16 panels:
 | `test`             | `npm test`                 | Run all tests                                        |
 | `test:unit`        | `npm run test:unit`        | Run unit tests only                                  |
 | `test:integration` | `npm run test:integration` | Run integration tests only                           |
+| `test:e2e`         | `npm run test:e2e`         | Run E2E tests (multi-step user journeys)             |
 | `test:coverage`    | `npm run test:coverage`    | Run tests with coverage report                       |
 | `test:watch`       | `npm run test:watch`       | Run tests in watch mode                              |
+| `seed`             | `npm run seed`             | Seed database with sample data                       |
+| `seed:fresh`       | `npm run seed:fresh`       | Drop existing data and re-seed                       |
+| `migrate:up`       | `npm run migrate:up`       | Run pending database migrations                      |
+| `migrate:down`     | `npm run migrate:down`     | Rollback last migration                              |
+| `migrate:status`   | `npm run migrate:status`   | Show migration status                                |
+| `migrate:create`   | `npm run migrate:create`   | Create a new migration file                          |
 
 ## Adding a New Module
 

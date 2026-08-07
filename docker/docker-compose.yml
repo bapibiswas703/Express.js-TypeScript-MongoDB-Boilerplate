@@ -17,11 +17,16 @@ services:
       - LOG_DIR=logs
       - SERVICE_NAME=express-api
       - ENABLE_LOKI=false
+      - TRACING_ENABLED=true
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_SERVICE_NAME=express-api
     volumes:
       - app-logs:/app/logs
     depends_on:
       mongo:
         condition: service_healthy
+      jaeger:
+        condition: service_started
     labels:
       - "logging=promtail"
     networks:
@@ -76,6 +81,19 @@ services:
     depends_on:
       loki:
         condition: service_healthy
+    networks:
+      - app-network
+
+  # Jaeger (Distributed Tracing)
+  jaeger:
+    image: jaegertracing/jaeger:2
+    container_name: jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "4318:4318"     # OTLP HTTP receiver
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
     networks:
       - app-network
 

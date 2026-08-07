@@ -1,4 +1,4 @@
-import 'dotenv/config';
+import './instrumentation'; // Must be first — initializes OpenTelemetry before other imports
 import express from 'express';
 import setupExpressApp from './services/ExpressApp';
 import connectDatabase from './services/Database';

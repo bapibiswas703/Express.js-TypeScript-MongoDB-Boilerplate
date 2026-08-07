@@ -27,6 +27,9 @@ npm install
 cp .env.example .env
 # Edit .env with your MongoDB URI and JWT secrets
 
+# Seed sample data (optional)
+npm run seed
+
 # Run
 npm run dev
 

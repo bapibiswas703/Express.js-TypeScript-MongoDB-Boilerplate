@@ -30,7 +30,22 @@ JWT_SECRET=your-strong-random-secret
 JWT_REFRESH_SECRET=another-strong-random-secret
 ```
 
-### 3. Start Development Server
+### 3. Seed Sample Data (Optional)
+
+```bash
+# Seed all sample data (roles, users, categories, products)
+npm run seed
+
+# Or drop existing data and re-seed
+npm run seed:fresh
+
+# Seed specific targets
+npm run seed -- --roles --users
+```
+
+This creates sample roles (superadmin, admin, user), demo users, categories, and products. The seeder is idempotent — running it again won't create duplicates.
+
+### 4. Start Development Server
 
 ```bash
 npm run dev
@@ -38,7 +53,7 @@ npm run dev
 
 This starts the server with `nodemon` + `ts-node` on port 8000 with hot-reloading.
 
-### 4. Verify
+### 5. Verify
 
 ```bash
 curl http://localhost:8000/health
@@ -49,73 +64,88 @@ Open `http://localhost:8000/api-docs` for the Swagger UI.
 
 ## Available Commands
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start dev server with hot-reload (port 8000) |
-| `npm run build` | Compile TypeScript to `dist/` |
-| `npm start` | Run compiled JS from `dist/` (production) |
-| `npx tsc --noEmit` | Type-check without emitting |
-| `npm test` | Run all tests (jest --runInBand --forceExit) |
-| `npm run test:unit` | Run unit tests only |
-| `npm run test:integration` | Run integration tests only |
-| `npm run test:coverage` | Run tests with coverage report |
-| `npm run lint` | Lint with ESLint |
-| `npm run lint:fix` | Auto-fix lint issues |
-| `npm run format` | Format with Prettier |
-| `npm run format:check` | Check formatting |
+| Command                    | Description                                                         |
+| -------------------------- | ------------------------------------------------------------------- |
+| `npm run dev`              | Start dev server with hot-reload (port 8000)                        |
+| `npm run build`            | Compile TypeScript to `dist/`                                       |
+| `npm start`                | Run compiled JS from `dist/` (production)                           |
+| `npx tsc --noEmit`         | Type-check without emitting                                         |
+| `npm test`                 | Run all tests (jest --runInBand --forceExit)                        |
+| `npm run test:unit`        | Run unit tests only                                                 |
+| `npm run test:integration` | Run integration tests only                                          |
+| `npm run test:e2e`         | Run end-to-end tests only                                           |
+| `npm run test:coverage`    | Run tests with coverage report                                      |
+| `npm run lint`             | Lint with ESLint                                                    |
+| `npm run lint:fix`         | Auto-fix lint issues                                                |
+| `npm run format`           | Format with Prettier                                                |
+| `npm run format:check`     | Check formatting                                                    |
+| `npm run seed`             | Seed database with sample data (roles, users, categories, products) |
+| `npm run seed:fresh`       | Drop existing data and re-seed                                      |
+| `npm run migrate:up`       | Run pending database migrations                                     |
+| `npm run migrate:down`     | Rollback last applied migration                                     |
+| `npm run migrate:status`   | Show migration status                                               |
+| `npm run migrate:create`   | Create a new migration file                                         |
 
 ## Environment Variables
 
 ### Required
 
-| Variable | Description | Default |
-|---|---|---|
-| `MONGODB_URI` | MongoDB connection string | `mongodb://127.0.0.1:27017/demo` |
-| `JWT_SECRET` | JWT signing secret | `change-this-to-a-secure-random-string` |
-| `JWT_REFRESH_SECRET` | Refresh token signing secret | `change-this-refresh-secret` |
+| Variable             | Description                  | Default                                 |
+| -------------------- | ---------------------------- | --------------------------------------- |
+| `MONGODB_URI`        | MongoDB connection string    | `mongodb://127.0.0.1:27017/demo`        |
+| `JWT_SECRET`         | JWT signing secret           | `change-this-to-a-secure-random-string` |
+| `JWT_REFRESH_SECRET` | Refresh token signing secret | `change-this-refresh-secret`            |
 
 ### Optional
 
-| Variable | Description | Default |
-|---|---|---|
-| `PORT` | Server port | `8000` |
-| `APP_NAME` | Application name (used in emails) | `NodeJS Backend` |
-| `NODE_ENV` | Environment (`development`/`production`) | `development` |
-| `JWT_EXPIRES_IN` | Access token expiry | `15m` |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry | `7d` |
-| `LOG_LEVEL` | Pino log level | `info` |
-| `LOG_DIR` | Log file directory | `logs` |
-| `SERVICE_NAME` | Service name for logs | `express-api` |
-| `LOG_RETENTION_DAYS` | Days to keep log files | `30` |
-| `ENABLE_LOKI` | Enable Loki log shipping | `false` |
-| `LOKI_URL` | Loki push endpoint | `http://loki:3100/loki/api/v1/push` |
+| Variable                 | Description                              | Default                             |
+| ------------------------ | ---------------------------------------- | ----------------------------------- |
+| `PORT`                   | Server port                              | `8000`                              |
+| `APP_NAME`               | Application name (used in emails)        | `NodeJS Backend`                    |
+| `NODE_ENV`               | Environment (`development`/`production`) | `development`                       |
+| `JWT_EXPIRES_IN`         | Access token expiry                      | `15m`                               |
+| `JWT_REFRESH_EXPIRES_IN` | Refresh token expiry                     | `7d`                                |
+| `LOG_LEVEL`              | Pino log level                           | `info`                              |
+| `LOG_DIR`                | Log file directory                       | `logs`                              |
+| `SERVICE_NAME`           | Service name for logs                    | `express-api`                       |
+| `LOG_RETENTION_DAYS`     | Days to keep log files                   | `30`                                |
+| `ENABLE_LOKI`            | Enable Loki log shipping                 | `false`                             |
+| `LOKI_URL`               | Loki push endpoint                       | `http://loki:3100/loki/api/v1/push` |
 
 ### Email (SMTP)
 
-| Variable | Description | Default |
-|---|---|---|
-| `SMTP_HOST` | SMTP server host | `smtp.gmail.com` |
-| `SMTP_PORT` | SMTP server port | `587` |
-| `SMTP_USER` | SMTP username | `` |
-| `SMTP_PASS` | SMTP password / app password | `` |
-| `SMTP_FROM` | Default sender address | `noreply@example.com` |
+| Variable    | Description                  | Default               |
+| ----------- | ---------------------------- | --------------------- |
+| `SMTP_HOST` | SMTP server host             | `smtp.gmail.com`      |
+| `SMTP_PORT` | SMTP server port             | `587`                 |
+| `SMTP_USER` | SMTP username                | ``                    |
+| `SMTP_PASS` | SMTP password / app password | ``                    |
+| `SMTP_FROM` | Default sender address       | `noreply@example.com` |
 
 ### AWS S3
 
-| Variable | Description | Default |
-|---|---|---|
-| `AWS_ACCESS_KEY_ID` | AWS access key | `` |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret key | `` |
-| `AWS_REGION` | AWS region | `us-east-1` |
-| `AWS_S3_BUCKET` | S3 bucket name | `` |
+| Variable                | Description    | Default     |
+| ----------------------- | -------------- | ----------- |
+| `AWS_ACCESS_KEY_ID`     | AWS access key | ``          |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key | ``          |
+| `AWS_REGION`            | AWS region     | `us-east-1` |
+| `AWS_S3_BUCKET`         | S3 bucket name | ``          |
 
 ### Firebase (FCM)
 
-| Variable | Description | Default |
-|---|---|---|
-| `FCM_PROJECT_ID` | Firebase project ID | `` |
-| `FCM_PRIVATE_KEY` | Firebase private key (with \n) | `` |
-| `FCM_CLIENT_EMAIL` | Firebase service account email | `` |
+| Variable           | Description                    | Default |
+| ------------------ | ------------------------------ | ------- |
+| `FCM_PROJECT_ID`   | Firebase project ID            | ``      |
+| `FCM_PRIVATE_KEY`  | Firebase private key (with \n) | ``      |
+| `FCM_CLIENT_EMAIL` | Firebase service account email | ``      |
+
+### OpenTelemetry Tracing
+
+| Variable                       | Description                  | Default                  |
+| ------------------------------ | ---------------------------- | ------------------------ |
+| `TRACING_ENABLED`              | Enable OpenTelemetry tracing | `false`                  |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | OTLP collector endpoint      | `http://localhost:4318`  |
+| `OTEL_SERVICE_NAME`            | Service name for traces      | `express-api`            |
 
 ## Docker Deployment
 
@@ -128,15 +158,16 @@ cd docker
 docker compose up -d
 ```
 
-This starts 5 services:
+This starts 6 services:
 
-| Service | Container | Port | Description |
-|---|---|---|---|
-| Express API | `express-api` | 8000 | Your application |
-| MongoDB | `mongo` | 27017 | Database (mongo:8) |
-| Loki | `loki` | 3100 | Log aggregation |
-| Promtail | `promtail` | - | Log shipper |
-| Grafana | `grafana` | 3000 | Dashboards |
+| Service     | Container     | Port  | Description            |
+| ----------- | ------------- | ----- | ---------------------- |
+| Express API | `express-api` | 8000  | Your application       |
+| MongoDB     | `mongo`       | 27017 | Database (mongo:8)     |
+| Jaeger      | `jaeger`      | 16686 | Distributed tracing UI |
+| Loki        | `loki`        | 3100  | Log aggregation        |
+| Promtail    | `promtail`    | -     | Log shipper            |
+| Grafana     | `grafana`     | 3000  | Dashboards             |
 
 ### Dockerfile
 
@@ -146,6 +177,7 @@ The Dockerfile (`docker/Dockerfile`) uses a multi-stage build:
 2. **Runner stage** — Copies compiled JS + production dependencies only
 
 Security features:
+
 - Non-root user (`appuser`)
 - Alpine base image (minimal attack surface)
 - Health check (`/health` endpoint)
@@ -174,15 +206,15 @@ Open `http://localhost:3000` after `docker compose up`.
 
 The API monitoring dashboard is auto-provisioned and includes:
 
-| Panel | Shows |
-|---|---|
-| Request Rate | Requests per second over time |
-| Error Rate | 4xx/5xx responses over time |
-| Top Endpoints | Most-hit API endpoints |
-| Status Codes | Distribution of HTTP status codes |
-| Auth Failures | Failed login/auth attempts |
-| Top IPs | Most active client IPs |
-| Audit Log | Business event trail (login, CRUD, role changes) |
+| Panel         | Shows                                            |
+| ------------- | ------------------------------------------------ |
+| Request Rate  | Requests per second over time                    |
+| Error Rate    | 4xx/5xx responses over time                      |
+| Top Endpoints | Most-hit API endpoints                           |
+| Status Codes  | Distribution of HTTP status codes                |
+| Auth Failures | Failed login/auth attempts                       |
+| Top IPs       | Most active client IPs                           |
+| Audit Log     | Business event trail (login, CRUD, role changes) |
 
 ### Log Flow
 
@@ -207,6 +239,7 @@ Grafana (queries Loki, renders dashboards)
 The application uses **Pino** for structured JSON logging. See `LOGGING.md` in the project root for full logging documentation.
 
 Key points:
+
 - **Development:** Pretty-printed colored console output
 - **Production:** JSON to stdout + rotated log files
 - **Request ID:** UUID v4 per request, propagated via `x-request-id` header
@@ -227,6 +260,20 @@ Key points:
 - [ ] Enable monitoring (Grafana + Loki or your preferred stack)
 - [ ] Set up health check monitoring/alerting on `/health`
 - [ ] Back up MongoDB on a schedule
+
+## Kubernetes Deployment
+
+Kustomize-based manifests are available in `k8s/` with overlays for dev, staging, and production.
+
+```bash
+# Preview
+kubectl kustomize k8s/overlays/prod
+
+# Deploy
+kubectl apply -k k8s/overlays/prod
+```
+
+See [`k8s/README.md`](../k8s/README.md) for full setup instructions, environment differences, and MongoDB options.
 
 ## Related Docs
 

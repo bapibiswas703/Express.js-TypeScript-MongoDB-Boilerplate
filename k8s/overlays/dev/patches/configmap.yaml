@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: express-api-config
+data:
+  NODE_ENV: "development"
+  LOG_LEVEL: "debug"
+  TRACING_ENABLED: "true"

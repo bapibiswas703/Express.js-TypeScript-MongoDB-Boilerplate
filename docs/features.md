@@ -119,19 +119,19 @@ Status legend: `Done` | `Partial` | `Pending` | `Blocked`
 
 ## Logging & Monitoring
 
-| #   | Feature                        | Status  | Notes                                                           |
-| --- | ------------------------------ | ------- | --------------------------------------------------------------- |
-| 79  | Structured JSON logging (Pino) | Done    | Replaces morgan, production-ready                               |
-| 80  | HTTP request/response logging  | Done    | pino-http auto-logs every request                               |
-| 81  | Error categorization logging   | Done    | errorLogger middleware classifies errors before handler         |
-| 82  | Audit logging                  | Done    | `auditLogger.log()` for business events                         |
-| 83  | Log file rotation              | Done    | Daily rotation via pino-roll                                    |
-| 84  | Request ID propagation         | Done    | UUID v4 in `x-request-id` header                                |
-| 85  | Grafana dashboard              | Done    | Auto-provisioned with Loki datasource                           |
-| 86  | Promtail log shipping          | Done    | Reads app logs + Docker logs, pushes to Loki                    |
-| 87  | Dev pretty-print logging       | Done    | pino-pretty for colored console in development                  |
-| 88  | APM / distributed tracing      | Pending | No OpenTelemetry or Datadog integration                         |
-| 89  | Metrics endpoint (Prometheus)  | Done    | `prom-client` with `/metrics` endpoint, HTTP + business metrics |
+| #   | Feature                        | Status | Notes                                                                                                                                                                                                                                                 |
+| --- | ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 79  | Structured JSON logging (Pino) | Done   | Replaces morgan, production-ready                                                                                                                                                                                                                     |
+| 80  | HTTP request/response logging  | Done   | pino-http auto-logs every request                                                                                                                                                                                                                     |
+| 81  | Error categorization logging   | Done   | errorLogger middleware classifies errors before handler                                                                                                                                                                                               |
+| 82  | Audit logging                  | Done   | `auditLogger.log()` for business events                                                                                                                                                                                                               |
+| 83  | Log file rotation              | Done   | Daily rotation via pino-roll                                                                                                                                                                                                                          |
+| 84  | Request ID propagation         | Done   | UUID v4 in `x-request-id` header                                                                                                                                                                                                                      |
+| 85  | Grafana dashboard              | Done   | Auto-provisioned with Loki datasource                                                                                                                                                                                                                 |
+| 86  | Promtail log shipping          | Done   | Reads app logs + Docker logs, pushes to Loki                                                                                                                                                                                                          |
+| 87  | Dev pretty-print logging       | Done   | pino-pretty for colored console in development                                                                                                                                                                                                        |
+| 88  | APM / distributed tracing      | Done   | OpenTelemetry SDK with auto-instrumentation for Express, MongoDB, HTTP. Exports traces to Jaeger/OTLP collector. Correlates trace IDs with Pino request logs. Jaeger in Docker Compose for local visualization. Toggle via `TRACING_ENABLED` env var. |
+| 89  | Metrics endpoint (Prometheus)  | Done   | `prom-client` with `/metrics` endpoint, HTTP + business metrics                                                                                                                                                                                       |
 
 ## Background Jobs
 
@@ -158,29 +158,29 @@ Status legend: `Done` | `Partial` | `Pending` | `Blocked`
 
 ## Testing
 
-| #   | Feature                       | Status  | Notes                                                |
-| --- | ----------------------------- | ------- | ---------------------------------------------------- |
-| 103 | Unit tests                    | Done    | 106+ tests for services, utils, logger               |
-| 104 | Integration tests             | Done    | 98+ tests with real MongoDB (MongoMemoryServer)      |
-| 105 | Test setup (helpers, app, DB) | Done    | `createTestUser`, `createTestRole`, `createTestApp`  |
-| 106 | Queue mocking in tests        | Done    | `jest.mock` for email/notification queues            |
-| 107 | Coverage reporting            | Done    | `npm run test:coverage`                              |
-| 108 | E2E tests                     | Pending | No end-to-end browser/client tests                   |
-| 109 | Load / stress tests           | Pending | No k6, Artillery, or similar                         |
-| 110 | CI/CD pipeline                | Done    | GitHub Actions: lint, typecheck, test, build, Docker |
+| #   | Feature                       | Status  | Notes                                                                                                                                                                                                                          |
+| --- | ----------------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 103 | Unit tests                    | Done    | 106+ tests for services, utils, logger                                                                                                                                                                                         |
+| 104 | Integration tests             | Done    | 98+ tests with real MongoDB (MongoMemoryServer)                                                                                                                                                                                |
+| 105 | Test setup (helpers, app, DB) | Done    | `createTestUser`, `createTestRole`, `createTestApp`                                                                                                                                                                            |
+| 106 | Queue mocking in tests        | Done    | `jest.mock` for email/notification queues                                                                                                                                                                                      |
+| 107 | Coverage reporting            | Done    | `npm run test:coverage`                                                                                                                                                                                                        |
+| 108 | E2E tests                     | Done    | 3 test suites (auth-flow, product-lifecycle, RBAC) covering multi-step user journeys via Supertest. `npm run test:e2e`                                                                                                         |
+| 109 | Load / stress tests           | Done    | k6 scripts in `tests/load/`: smoke, sustained load, spike, soak. Targets auth, products, categories with filtering/pagination. See `tests/load/README.md`                                                                     |
+| 110 | CI/CD pipeline                | Done    | GitHub Actions: lint, typecheck, test, build, Docker                                                                                                                                                                           |
 
 ## DevOps & Deployment
 
-| #   | Feature                  | Status  | Notes                                              |
-| --- | ------------------------ | ------- | -------------------------------------------------- |
-| 111 | Dockerfile (multi-stage) | Done    | Builder + runner, non-root user, health check      |
-| 112 | Docker Compose           | Done    | App + MongoDB + Loki + Promtail + Grafana          |
-| 113 | .env.example             | Done    | All variables documented                           |
-| 114 | ESLint + Prettier        | Done    | Flat config, auto-fixable                          |
-| 115 | TypeScript compilation   | Done    | `npm run build` → `dist/`                          |
-| 116 | Kubernetes manifests     | Pending | No k8s deployment/service/ingress configs          |
-| 117 | Database migrations      | Pending | No migration framework (relies on Mongoose schema) |
-| 118 | Seed script (CLI)        | Partial | Roles auto-seeded, but no CLI for custom seed data |
+| #   | Feature                  | Status  | Notes                                                                                                                                                                                                                                 |
+| --- | ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 111 | Dockerfile (multi-stage) | Done    | Builder + runner, non-root user, health check                                                                                                                                                                                         |
+| 112 | Docker Compose           | Done    | App + MongoDB + Loki + Promtail + Grafana                                                                                                                                                                                             |
+| 113 | .env.example             | Done    | All variables documented                                                                                                                                                                                                              |
+| 114 | ESLint + Prettier        | Done    | Flat config, auto-fixable                                                                                                                                                                                                             |
+| 115 | TypeScript compilation   | Done    | `npm run build` → `dist/`                                                                                                                                                                                                             |
+| 116 | Kubernetes manifests     | Done    | `k8s/` with Deployment, Service, Ingress, ConfigMap, Secret, HPA, MongoDB StatefulSet. Kustomize overlays for dev/staging/prod. See `k8s/README.md`                                                                                 |
+| 117 | Database migrations      | Done    | `migrate-mongo` with `migrations/` directory. `npm run migrate:up/down/status/create`. Initial index migration + example field migration                                                                                              |
+| 118 | Seed script (CLI)        | Done    | CLI with `npm run seed` — roles, users, categories, products; supports `--fresh` and selective seeding                                                                                                                                |
 
 ## Documentation
 
@@ -206,9 +206,9 @@ Status legend: `Done` | `Partial` | `Pending` | `Blocked`
 
 | Status    | Count   |
 | --------- | ------- |
-| Done      | 121     |
-| Partial   | 1       |
-| Pending   | 8       |
+| Done      | 127     |
+| Partial   | 0       |
+| Pending   | 3       |
 | N/A       | 1       |
 | **Total** | **131** |
 
@@ -232,12 +232,12 @@ The features below are recommended to bring this boilerplate to a fully producti
 
 ### Low Priority (Nice to Have)
 
-| #   | Feature                       | Status  | Why                                                               |
-| --- | ----------------------------- | ------- | ----------------------------------------------------------------- |
-| 3   | **Webhook system**            | Done    | Outgoing webhooks with HMAC-signed delivery (see feature #102).   |
-| 4   | **API key authentication**    | Pending | For service-to-service communication or third-party integrations. |
-| 5   | **Kubernetes manifests**      | Pending | Deployment, Service, Ingress, HPA configs for k8s deployments.    |
-| 6   | **Database migrations**       | Pending | Use `migrate-mongo` or similar for versioned schema changes.      |
-| 7   | **APM / distributed tracing** | Pending | OpenTelemetry integration for request tracing across services.    |
-| 8   | **E2E tests**                 | Pending | End-to-end browser/client tests with Playwright or Cypress.       |
-| 9   | **Load / stress tests**       | Pending | Performance testing with k6 or Artillery.                         |
+| #   | Feature                       | Status  | Why                                                                              |
+| --- | ----------------------------- | ------- | -------------------------------------------------------------------------------- |
+| 3   | **Webhook system**            | Done    | Outgoing webhooks with HMAC-signed delivery (see feature #102).                  |
+| 4   | **API key authentication**    | Pending | For service-to-service communication or third-party integrations.                |
+| 5   | **Kubernetes manifests**      | Done    | Kustomize base + dev/staging/prod overlays (see feature #116).                    |
+| 6   | **Database migrations**       | Done    | `migrate-mongo` with timestamped scripts (see feature #117).                      |
+| 7   | **APM / distributed tracing** | Done    | OpenTelemetry SDK + Jaeger in Docker Compose (see feature #88).                  |
+| 8   | **E2E tests**                 | Done    | Supertest-based E2E tests for auth flows, product CRUD, RBAC (see feature #108). |
+| 9   | **Load / stress tests**       | Done    | k6 scripts: smoke, load, spike, soak (see feature #109).                         |

@@ -380,6 +380,25 @@ npm run test:unit         # Unit tests only
 npm run test:integration  # Integration tests only
 ```
 
+## Step 14: Add Seed Data (Optional)
+
+Add sample data for your module in `src/scripts/seed-data.ts`:
+
+```typescript
+export const SEED_ORDERS = [
+  { status: 'pending', total: 99.99, /* ... */ },
+  { status: 'confirmed', total: 149.99, /* ... */ },
+];
+```
+
+Then add a seeder function in `src/scripts/seed.ts` following the existing pattern (check for duplicates, support `--fresh` flag), and register it in the `seederMap` and `seedTargets` array.
+
+Run with:
+```bash
+npm run seed -- --orders          # Seed orders only
+npm run seed -- --orders --fresh  # Drop and re-seed orders
+```
+
 ## Checklist
 
 - [ ] Model with interface extending `Document`
@@ -393,6 +412,7 @@ npm run test:integration  # Integration tests only
 - [ ] Routes registered in `src/modules/index.ts`
 - [ ] Permissions added to `constants/permissions.ts`
 - [ ] Permissions assigned to roles in `seed.ts`
+- [ ] Seed data added to `src/scripts/seed-data.ts` (optional)
 - [ ] Swagger annotations (optional)
 - [ ] Unit + integration tests
 

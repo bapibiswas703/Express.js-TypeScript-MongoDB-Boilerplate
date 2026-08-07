@@ -64,9 +64,13 @@ MongoDB (via Mongoose)
 ```
 src/
 ├── app.ts                              # Entry point — boots the server
+├── instrumentation.ts                  # OpenTelemetry setup (loaded first)
 ├── config/
 │   ├── index.ts                        # Nested env-based config object
 │   └── swagger.ts                      # OpenAPI 3.0 spec (swagger-jsdoc)
+├── scripts/                            # CLI scripts
+│   ├── seed.ts                         # Database seeding CLI (npm run seed)
+│   └── seed-data.ts                    # Seed data definitions
 ├── services/                           # Infrastructure services
 │   ├── Database.ts                     # MongoDB connection (mongoose.connect)
 │   ├── ExpressApp.ts                   # Express setup + middleware stack
@@ -103,13 +107,14 @@ src/
 The application starts in `src/app.ts` and follows this sequence:
 
 ```
-1. Load environment variables (dotenv)
-2. Connect to MongoDB
-3. Seed default roles (superadmin, admin, user)
-4. Start Agenda job processor
-5. Setup Express middleware stack
-6. Listen on configured port
-7. Register graceful shutdown handlers (SIGTERM, SIGINT)
+1. Initialize OpenTelemetry (if TRACING_ENABLED=true)
+2. Load environment variables (dotenv)
+3. Connect to MongoDB
+4. Seed default roles (superadmin, admin, user)
+5. Start Agenda job processor
+6. Setup Express middleware stack
+7. Listen on configured port
+8. Register graceful shutdown handlers (SIGTERM, SIGINT)
 ```
 
 On shutdown, Agenda stops first, then the HTTP server closes gracefully.
